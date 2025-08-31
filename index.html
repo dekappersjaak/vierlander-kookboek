@@ -22,22 +22,27 @@
       font-family: 'Inter', 'Poppins', sans-serif;
       background-color: var(--color-accent);
       color: var(--color-dark);
-    }
-
-    /* Hero section using header element */
-    header.hero {
+    }eader.hero {
       position: relative;
       min-height: 60vh;
       /* verwijder centrering zodat we zelf kunnen positioneren */
       overflow: hidden;
-      color: #fff;
-    }
-    header.hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url('./header.jpg') center/cover no-repeat;
-      transform: scale(1.03);
+        color: #fff;
+      /* Nieuwe responsive banner-achtergrond via <picture> */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.03);
+    display: block;
+  }
+  
     }
     header.hero::after {
       content: "";
@@ -321,6 +326,29 @@
 <body>
   <!-- Hero section -->
   <header class="hero" role="img" aria-label="Header met Sjaak als chef">
+        <picture class="hero-bg" aria-hidden="true">
+      <source type="image/webp"
+        srcset="sjaak-banner-384.webp 384w,
+                sjaak-banner-512.webp 512w,
+                sjaak-banner-640.webp 640w,
+                sjaak-banner-768.webp 768w,
+                sjaak-banner-960.webp 960w,
+                sjaak-banner-1024.webp 1024w,
+                sjaak-banner-1376.webp 1376w"
+        sizes="(max-width: 768px) 100vw, 1200px" />
+      <img
+        src="sjaak-banner-1376.png"
+        srcset="sjaak-banner-384.png 384w,
+                sjaak-banner-512.png 512w,
+                sjaak-banner-640.png 640w,
+                sjaak-banner-768.png 768w,
+                sjaak-banner-960.png 960w,
+                sjaak-banner-1024.png 1024w,
+                sjaak-banner-1376.png 1376w"
+        sizes="(max-width: 768px) 100vw, 1200px"
+        alt="" />
+    </picture>
+
     <div class="hero-inner">
       <h1>Gezonde, lekkere diners — mét jouw smaak</h1>
       <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;">
