@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>De Vierlander Kookboek – Dinerplanner</title>
+  <style>
+    :root {
+      /* Kleuren gebaseerd op de frisse Vierlander stijl */
+      --color-primary: #A7F3D0; /* mintgroen */
+      --color-secondary: #FFB562; /* zacht oranje */
+      --color-accent: #FFF3B0; /* lichtgeel */
+      --color-dark: #111827; /* donker voor tekst */
+      --color-good: #34D399; /* groen smiley */
+      --color-warning: #FBBF24; /* oranje smiley */
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--color-accent);
+      color: var(--color-dark);
+    }
+
+    header {
+      background-color: var(--color-primary);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: var(--color-secondary);
+      padding: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      background-color: var(--color-primary);
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      margin: 0.25rem;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 1rem;
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    /* Weekmenu */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .menu-day {
+      background-color: #fff;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 120px;
+    }
+
+    .menu-day h3 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .menu-day .smiley {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .menu-day button {
+      margin-top: auto;
+      align-self: flex-start;
+    }
+
+    .health-overview {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .health-overview span {
+      margin: 0 0.25rem;
+      font-size: 1.5rem;
+    }
+
+    /* Recepten */
+    #filters {
+      margin-bottom: 1rem;
+    }
+
+    #filters label {
+      margin-right: 1rem;
+    }
+
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .recipe-card {
+      background-color: #fff;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+    }
+
+    .recipe-card h4 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .recipe-card p {
+      flex-grow: 1;
+    }
+
+    .recipe-card button {
+      margin-top: 0.3rem;
+    }
+
+    /* Boodschappenlijst */
+    .shopping-list {
+      background-color: #fff;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .shopping-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .shopping-list li {
+      margin: 0.25rem 0;
+    }
+
+    /* Voorkeuren */
+    .preferences form label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Favorieten */
+    .favorites-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .favorites-list button {
+      background-color: var(--color-secondary);
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+    }
+
+    /* Poll & Ideeën */
+    .poll, .ideas {
+      background-color: #fff;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .poll button {
+      margin-right: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>De Vierlander Kookboek – Dinerplanner</h1>
+    <p>Samen kiezen, koken en genieten van gezonde diners!</p>
+  </header>
+  <nav>
+    <button onclick="showSection('menu')">Weekmenu</button>
+    <button onclick="showSection('recipes')">Recepten</button>
+    <button onclick="showSection('shopping')">Boodschappen</button>
+    <button onclick="showSection('preferences')">Voorkeuren</button>
+    <button onclick="showSection('favorites')">Favorieten</button>
+    <button onclick="showSection('poll')">Stem vrijdaggerecht</button>
+    <button onclick="showSection('ideas')">Ideeën</button>
+  </nav>
+  <main>
+    <!-- Weekmenu -->
+    <div id="menu-section" class="page">
+      <h2>Weekmenu (Diner)</h2>
+      <div class="health-overview" id="health-overview"></div>
+      <div class="menu-grid" id="menu-grid"></div>
+    </div>
+    <!-- Recepten -->
+    <div id="recipes-section" class="page" style="display:none">
+      <h2>Recepten</h2>
+      <div id="filters">
+        <label><input type="checkbox" id="filter-healthy" onchange="renderRecipes()"> Gezond</label>
+        <label><input type="checkbox" id="filter-budget" onchange="renderRecipes()"> Budget</label>
+        <label><input type="checkbox" id="filter-quick" onchange="renderRecipes()"> Snel</label>
+        <label><input type="checkbox" id="filter-festive" onchange="renderRecipes()"> Feestelijk</label>
+        <label><input type="checkbox" id="filter-veg" onchange="renderRecipes()"> Vegetarisch</label>
+        <label>Zoeken: <input type="text" id="search-query" placeholder="Zoek recept..." oninput="renderRecipes()"></label>
+      </div>
+      <div class="recipes-grid" id="recipes-grid"></div>
+    </div>
+    <!-- Boodschappen -->
+    <div id="shopping-section" class="page" style="display:none">
+      <h2>Boodschappenlijst</h2>
+      <div class="shopping-list" id="shopping-list"></div>
+    </div>
+    <!-- Voorkeuren -->
+    <div id="preferences-section" class="page" style="display:none">
+      <h2>Voorkeuren & Allergieën</h2>
+      <div class="preferences">
+        <form id="prefs-form">
+          <label><input type="checkbox" id="pref-budget"> Budgetvriendelijk</label>
+          <label><input type="checkbox" id="pref-veg"> Vegetarisch</label>
+          <label>Allergieën:</label>
+          <label><input type="checkbox" class="pref-allergy" value="gluten"> Gluten</label>
+          <label><input type="checkbox" class="pref-allergy" value="lactose"> Lactose</label>
+          <label><input type="checkbox" class="pref-allergy" value="noten"> Noten</label>
+          <label><input type="checkbox" class="pref-allergy" value="vis"> Vis</label>
+          <label>Kookniveau:
+            <select id="pref-level">
+              <option value="">Alle</option>
+              <option value="makkelijk">Makkelijk</option>
+              <option value="gemiddeld">Gemiddeld</option>
+              <option value="gevorderd">Gevorderd</option>
+            </select>
+          </label>
+          <button type="button" onclick="savePreferences()">Opslaan</button>
+        </form>
+      </div>
+    </div>
+    <!-- Favorieten -->
+    <div id="favorites-section" class="page" style="display:none">
+      <h2>Favoriete Recepten</h2>
+      <div class="favorites-list" id="favorites-list"></div>
+    </div>
+    <!-- Poll -->
+    <div id="poll-section" class="page" style="display:none">
+      <h2>Stem op het vrijdaggerecht</h2>
+      <div class="poll" id="poll"></div>
+    </div>
+    <!-- Ideeën -->
+    <div id="ideas-section" class="page" style="display:none">
+      <h2>Deel jouw idee</h2>
+      <div class="ideas">
+        <form onsubmit="submitIdea(event)">
+          <textarea id="idea-input" rows="3" placeholder="Omschrijf jouw idee..."></textarea><br>
+          <button type="submit">Verstuur</button>
+        </form>
+        <h3>Ingediende ideeën</h3>
+        <ul id="ideas-list"></ul>
+      </div>
+    </div>
+  </main>
+  <footer>
+    © 2025 De Vierlander Kookboek
+  </footer>
+  <script>
+  // Voorbeeld dataset van recepten
+  const recipes = [
+    {
+      name: "Groentecurry met rijst",
+      description: "Een kruidige curry boordevol groenten geserveerd met rijst.",
+      ingredients: ["broccoli","wortel","paprika","kokosmelk","kerrie","rijst"],
+      categories: {healthy: true, budget: true, quick: false, festive: false, vegetarian: true},
+      allergens: [],
+      level: "makkelijk"
+    },
+    {
+      name: "Spaghetti Bolognese",
+      description: "Een Italiaanse klassieker met tomatensaus en gehakt.",
+      ingredients: ["spaghetti","gehakt","tomaat","ui","wortel","kruiden"],
+      categories: {healthy: false, budget: true, quick: false, festive: false, vegetarian: false},
+      allergens: ["gluten"],
+      level: "gemiddeld"
+    },
+    {
+      name: "Gegrilde Zalm met Groene Asperges",
+      description: "Een feestelijk gerecht met zalm en asperges.",
+      ingredients: ["zalm","asperges","citroen","olijfolie"],
+      categories: {healthy: true, budget: false, quick: true, festive: true, vegetarian: false},
+      allergens: ["vis"],
+      level: "gemiddeld"
+    },
+    {
+      name: "Ratatouille",
+      description: "Een Franse stoofschotel met diverse groenten, vegetarisch en gezond.",
+      ingredients: ["aubergine","courgette","tomaat","paprika","ui","knoflook"],
+      categories: {healthy: true, budget: true, quick: false, festive: false, vegetarian: true},
+      allergens: [],
+      level: "makkelijk"
+    },
+    {
+      name: "Snelle Noodles met Groenten",
+      description: "Een snel en budgetvriendelijk wokgerecht met noodles en groenten.",
+      ingredients: ["noodles","wortel","paprika","sojasaus","ui"],
+      categories: {healthy: false, budget: true, quick: true, festive: false, vegetarian: true},
+      allergens: ["gluten"],
+      level: "makkelijk"
+    },
+    {
+      name: "Pompoensoep",
+      description: "Een romige pompoensoep, ideaal als seizoensspecial.",
+      ingredients: ["pompoen","wortel","ui","bouillon"],
+      categories: {healthy: true, budget: true, quick: true, festive: false, vegetarian: true},
+      allergens: [],
+      level: "makkelijk"
+    }
+  ];
+  // Dagen van de week
+  const days = ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"];
+  // Gegevens ophalen uit localStorage of defaults instellen
+  let menu = JSON.parse(localStorage.getItem('vierlander_menu')) || Array(7).fill(null);
+  let favorites = JSON.parse(localStorage.getItem('vierlander_favorites')) || [];
+  let preferences = JSON.parse(localStorage.getItem('vierlander_preferences')) || {
+    budget:false, veg:false, allergies:[], level:""
+  };
+  let votes = JSON.parse(localStorage.getItem('vierlander_votes')) || [0,0,0];
+  let ideas = JSON.parse(localStorage.getItem('vierlander_ideas')) || [];
+  // Poll opties voor vrijdaggerecht
+  const pollOptions = ["Pasta Pesto","Lasagne","Risotto"];
+  // Huidige selectie voor dag kiezen
+  let selectingDay = null;
+  // Render weekmenu
+  function renderMenu(){
+    const grid = document.getElementById('menu-grid');
+    grid.innerHTML = '';
+    menu.forEach((recipeIndex, dayIndex) => {
+      const div = document.createElement('div');
+      div.className = 'menu-day';
+      const h3 = document.createElement('h3');
+      h3.textContent = days[dayIndex];
+      div.appendChild(h3);
+      const smiley = document.createElement('span');
+      smiley.className = 'smiley';
+      if(recipeIndex !== null) {
+        const recipe = recipes[recipeIndex];
+        const healthy = recipe.categories.healthy;
+        smiley.textContent = healthy ? '🙂' : '😐';
+        smiley.style.color = healthy ? 'var(--color-good)' : 'var(--color-warning)';
+        const name = document.createElement('p');
+        name.textContent = recipe.name;
+        div.appendChild(name);
+      } else {
+        smiley.textContent = '❓';
+        smiley.style.color = 'var(--color-warning)';
+        const noSel = document.createElement('p');
+        noSel.textContent = 'Nog geen gerecht';
+        div.appendChild(noSel);
+      }
+      div.appendChild(smiley);
+      const btn = document.createElement('button');
+      btn.textContent = 'Kies gerecht';
+      btn.onclick = () => chooseDish(dayIndex);
+      div.appendChild(btn);
+      grid.appendChild(div);
+    });
+    renderHealthOverview();
+    renderShoppingList();
+  }
+  // Gezondheidsweergave
+  function renderHealthOverview(){
+    const container = document.getElementById('health-overview');
+    container.innerHTML = '';
+    let healthyCount = 0;
+    menu.forEach(index => {
+      const span = document.createElement('span');
+      if(index !== null){
+        const recipe = recipes[index];
+        const healthy = recipe.categories.healthy;
+        span.textContent = healthy ? '🙂' : '😐';
+        span.style.color = healthy ? 'var(--color-good)' : 'var(--color-warning)';
+        if(healthy) healthyCount++;
+      } else {
+        span.textContent = '❓';
+        span.style.color = 'var(--color-warning)';
+      }
+      container.appendChild(span);
+    });
+    // Grote smiley die de week samenvat
+    const big = document.createElement('span');
+    big.style.marginRight = '1rem';
+    const ratio = healthyCount / menu.length;
+    // 🥦 voor voldoende vitaminen, 🍔 als het wat ongezonder is
+    big.textContent = ratio >= 0.6 ? '🥦' : '🍔';
+    big.style.fontSize = '2rem';
+    container.prepend(big);
+  }
+  // Functie om een gerecht te kiezen voor een dag
+  function chooseDish(dayIndex){
+    selectingDay = dayIndex;
+    showSection('recipes');
+  }
+  // Recepten weergeven met filters en voorkeuren
+  function renderRecipes(){
+    const grid = document.getElementById('recipes-grid');
+    grid.innerHTML = '';
+    const healthyFilter = document.getElementById('filter-healthy').checked;
+    const budgetFilter = document.getElementById('filter-budget').checked;
+    const quickFilter = document.getElementById('filter-quick').checked;
+    const festiveFilter = document.getElementById('filter-festive').checked;
+    const vegFilter = document.getElementById('filter-veg').checked;
+    const search = document.getElementById('search-query').value.toLowerCase();
+    recipes.forEach((recipe, index) => {
+      if(healthyFilter && !recipe.categories.healthy) return;
+      if(budgetFilter && !recipe.categories.budget) return;
+      if(quickFilter && !recipe.categories.quick) return;
+      if(festiveFilter && !recipe.categories.festive) return;
+      if(vegFilter && !recipe.categories.vegetarian) return;
+      // Pas algemene voorkeuren toe
+      if(preferences.budget && !recipe.categories.budget) return;
+      if(preferences.veg && !recipe.categories.vegetarian) return;
+      if(preferences.level && recipe.level !== preferences.level) return;
+      for(const allergy of preferences.allergies){
+        if(recipe.allergens.includes(allergy)) return;
+      }
+      if(search && !recipe.name.toLowerCase().includes(search) && !recipe.description.toLowerCase().includes(search)) return;
+      const card = document.createElement('div');
+      card.className = 'recipe-card';
+      const title = document.createElement('h4');
+      title.textContent = recipe.name;
+      card.appendChild(title);
+      const desc = document.createElement('p');
+      desc.textContent = recipe.description;
+      card.appendChild(desc);
+      const btnAdd = document.createElement('button');
+      btnAdd.textContent = selectingDay !== null ? 'Kies voor ' + days[selectingDay] : 'Voeg toe aan favorieten';
+      btnAdd.onclick = () => {
+        if(selectingDay !== null){
+          menu[selectingDay] = index;
+          localStorage.setItem('vierlander_menu', JSON.stringify(menu));
+          selectingDay = null;
+          showSection('menu');
+          renderMenu();
+        } else {
+          toggleFavorite(index);
+        }
+      };
+      card.appendChild(btnAdd);
+      // Favoriet-knop
+      const favBtn = document.createElement('button');
+      favBtn.textContent = favorites.includes(index) ? '★' : '☆';
+      favBtn.title = favorites.includes(index) ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten';
+      favBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleFavorite(index);
+        renderRecipes();
+      };
+      card.appendChild(favBtn);
+      // Voorleesknop
+      const readBtn = document.createElement('button');
+      readBtn.textContent = '🔊';
+      readBtn.title = 'Voorlezen';
+      readBtn.onclick = () => {
+        speakText(`${recipe.name}. ${recipe.description}. Ingrediënten: ${recipe.ingredients.join(', ')}.`);
+      };
+      card.appendChild(readBtn);
+      grid.appendChild(card);
+    });
+  }
+  // Favorieten beheren
+  function toggleFavorite(index){
+    const i = favorites.indexOf(index);
+    if(i === -1) favorites.push(index);
+    else favorites.splice(i,1);
+    localStorage.setItem('vierlander_favorites', JSON.stringify(favorites));
+    renderFavorites();
+  }
+  function renderFavorites(){
+    const container = document.getElementById('favorites-list');
+    container.innerHTML = '';
+    favorites.forEach(index => {
+      const btn = document.createElement('button');
+      btn.textContent = recipes[index].name;
+      btn.onclick = () => {
+        // Jump to recipes and voorselecteer door zoekterm in te vullen
+        selectingDay = null;
+        showSection('recipes');
+        document.getElementById('search-query').value = recipes[index].name;
+        renderRecipes();
+      };
+      container.appendChild(btn);
+    });
+  }
+  // Boodschappenlijst renderen
+  function renderShoppingList(){
+    const listDiv = document.getElementById('shopping-list');
+    const counts = {};
+    menu.forEach(index => {
+      if(index !== null){
+        recipes[index].ingredients.forEach(item => {
+          counts[item] = (counts[item] || 0) + 1;
+        });
+      }
+    });
+    const ul = document.createElement('ul');
+    Object.entries(counts).forEach(([item,count]) => {
+      const li = document.createElement('li');
+      li.textContent = `${item} (${count})`;
+      ul.appendChild(li);
+    });
+    listDiv.innerHTML = '';
+    listDiv.appendChild(ul);
+  }
+  // Voorkeuren opslaan
+  function savePreferences(){
+    preferences.budget = document.getElementById('pref-budget').checked;
+    preferences.veg = document.getElementById('pref-veg').checked;
+    const allergyElements = document.querySelectorAll('.pref-allergy');
+    preferences.allergies = Array.from(allergyElements).filter(el => el.checked).map(el => el.value);
+    preferences.level = document.getElementById('pref-level').value;
+    localStorage.setItem('vierlander_preferences', JSON.stringify(preferences));
+    alert('Voorkeuren opgeslagen!');
+    renderRecipes();
+  }
+  // Voorkeuren in het formulier laden
+  function loadPreferences(){
+    document.getElementById('pref-budget').checked = preferences.budget;
+    document.getElementById('pref-veg').checked = preferences.veg;
+    const allergyElements = document.querySelectorAll('.pref-allergy');
+    allergyElements.forEach(el => {
+      el.checked = preferences.allergies.includes(el.value);
+    });
+    document.getElementById('pref-level').value = preferences.level;
+  }
+  // Poll renderen
+  function renderPoll(){
+    const container = document.getElementById('poll');
+    container.innerHTML = '';
+    pollOptions.forEach((opt, index) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      const btn = document.createElement('button');
+      btn.textContent = 'Stem';
+      btn.onclick = () => vote(index);
+      row.appendChild(btn);
+      const span = document.createElement('span');
+      span.textContent = `${opt} – ${votes[index]} stemmen`;
+      span.style.marginLeft = '0.5rem';
+      row.appendChild(span);
+      container.appendChild(row);
+    });
+  }
+  function vote(index){
+    votes[index] += 1;
+    localStorage.setItem('vierlander_votes', JSON.stringify(votes));
+    renderPoll();
+  }
+  // Ideeën beheren
+  function submitIdea(event){
+    event.preventDefault();
+    const textarea = document.getElementById('idea-input');
+    const text = textarea.value.trim();
+    if(text){
+      ideas.push(text);
+      localStorage.setItem('vierlander_ideas', JSON.stringify(ideas));
+      textarea.value = '';
+      renderIdeas();
+    }
+  }
+  function renderIdeas(){
+    const list = document.getElementById('ideas-list');
+    list.innerHTML = '';
+    ideas.forEach(idea => {
+      const li = document.createElement('li');
+      li.textContent = idea;
+      list.appendChild(li);
+    });
+  }
+  // Voorleesfunctie
+  function speakText(text){
+    if('speechSynthesis' in window){
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Voorleesfunctie wordt niet ondersteund in deze browser.');
+    }
+  }
+  // Navigatie
+  function showSection(section){
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.style.display = 'none');
+    document.getElementById(section + '-section').style.display = 'block';
+    if(section === 'recipes'){
+      renderRecipes();
+    }
+    if(section === 'favorites'){
+      renderFavorites();
+    }
+    if(section === 'poll'){
+      renderPoll();
+    }
+    if(section === 'ideas'){
+      renderIdeas();
+    }
+    if(section === 'preferences'){
+      loadPreferences();
+    }
+  }
+  // Init
+  renderMenu();
+  renderRecipes();
+  renderFavorites();
+  renderPoll();
+  renderIdeas();
+  loadPreferences();
+  </script>
+</body>
+</html>
